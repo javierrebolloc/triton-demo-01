@@ -36,7 +36,7 @@ import json
 import time
 import argparse
 
-# time.sleep(60)
+time.sleep(120)
 
 MAX_DISPLAY_LEN = 64
 PGIE_CLASS_ID_VEHICLE = 0

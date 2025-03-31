@@ -127,5 +127,19 @@ services:
         condition: service_started
       kafka:
         condition: service_started
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - demo-01
+  grafana:
+    image: grafana/grafana-enterprise
+    ports:
+      - "3000:3000"
+    networks:
+      - demo-01
 networks:
   demo-01:
