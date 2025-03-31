@@ -70,7 +70,7 @@ services:
       - demo-01
     hostname: triton-server
   deepstream-app:
-    image: working-deepstream-v01
+    image: working-deepstream-v02
     deploy:
       resources:
         reservations:
@@ -83,6 +83,8 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./triton_model_repo:/models
       - ./start-inference.py:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/start-inference.py
+      - ./dstest1_pgie_config.txt:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/dstest1_pgie_config.txt
+      - ./dstest1_pgie_inferserver_config.txt:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/dstest1_pgie_inferserver_config.txt
     environment:
       - DISPLAY=${DISPLAY}
     working_dir: /opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out
