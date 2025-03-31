@@ -56,7 +56,7 @@ pgie_classes_str = ["Vehicle", "TwoWheeler", "Person", "RoadSign"]
 # pgie_src_pad_buffer_probe  will extract metadata received on OSD sink pad
 # and update params for drawing rectangle, object information etc.
 # Kafka configuration
-producer = KafkaProducer(bootstrap_servers='kafka-kafka-1:9092')
+producer = KafkaProducer(bootstrap_servers='triton-demo-01-kafka-1:9092')
 topic_name = 'rtsp_out'
 
 def pgie_src_pad_buffer_probe(pad, info, u_data):
