@@ -35,20 +35,38 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     networks:
       - demo-01
-  rtsp-streamer:
-    image: ubuntu:latest
-    volumes:
-      - ./orleans.mp4:/orleans.mp4
-    command: bash -c "ls -l && pwd && apt-get update && apt-get install -y ffmpeg && pwd && ls -l && chmod 777 orleans.mp4 && ffmpeg -re -stream_loop -1 -i ./orleans.mp4 -an -c copy -f rtsp rtsp://rtsp-server-1:8554/mystream"
-    depends_on:
-      - rtsp-server-1
-    networks:
-      - demo-01
   rtsp-server-1:
     image: bluenviron/mediamtx
     ports:
       - "8554:8554"
     hostname: rtsp-server-1
+    networks:
+      - demo-01
+  rtsp-streamer-01:
+    image: ubuntu:latest
+    volumes:
+      - ./orleans.mp4:/orleans.mp4
+    command: bash -c "ls -l && pwd && apt-get update && apt-get install -y ffmpeg && pwd && ls -l && chmod 777 orleans.mp4 && ffmpeg -re -stream_loop -1 -i ./orleans.mp4 -an -c copy -f rtsp rtsp://rtsp-server-1:8554/cam1"
+    depends_on:
+      - rtsp-server-1
+    networks:
+      - demo-01
+  rtsp-streamer-02:
+    image: ubuntu:latest
+    volumes:
+      - ./filipinas.mp4:/filipinas.mp4
+    command: bash -c "ls -l && pwd && apt-get update && apt-get install -y ffmpeg && pwd && ls -l && chmod 777 filipinas.mp4 && ffmpeg -re -stream_loop -1 -i ./filipinas.mp4 -an -c copy -f rtsp rtsp://rtsp-server-1:8554/cam2"
+    depends_on:
+      - rtsp-server-1
+    networks:
+      - demo-01
+  rtsp-streamer-03:
+    image: ubuntu:latest
+    volumes:
+      - ./tokio.mp4:/tokio.mp4
+    command: bash -c "ls -l && pwd && apt-get update && apt-get install -y ffmpeg && pwd && ls -l && chmod 777 tokio.mp4 && ffmpeg -re -stream_loop -1 -i ./tokio.mp4 -an -c copy -f rtsp rtsp://rtsp-server-1:8554/cam3"
+    depends_on:
+      - rtsp-server-1
     networks:
       - demo-01
   triton-server:
@@ -88,13 +106,17 @@ services:
     environment:
       - DISPLAY=${DISPLAY}
     working_dir: /opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out
-    command: python3 start-inference.py -i rtsp://rtsp-server-1:8554/mystream -g nvinferserver
+    command: python3 start-inference.py -i rtsp://rtsp-server-1:8554/cam1 rtsp://rtsp-server-1:8554/cam2 rtsp://rtsp-server-1:8554/cam3 -g nvinferserver
     networks:
       - demo-01
     depends_on:
       triton-server:
         condition: service_started
-      rtsp-streamer:
+      rtsp-streamer-01:
+        condition: service_started
+      rtsp-streamer-02:
+        condition: service_started
+      rtsp-streamer-03:
         condition: service_started
       kafka:
         condition: service_started

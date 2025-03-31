@@ -36,7 +36,7 @@ import json
 import time
 import argparse
 
-time.sleep(60)
+# time.sleep(60)
 
 MAX_DISPLAY_LEN = 64
 PGIE_CLASS_ID_VEHICLE = 0
@@ -56,7 +56,7 @@ pgie_classes_str = ["Vehicle", "TwoWheeler", "Person", "RoadSign"]
 # pgie_src_pad_buffer_probe  will extract metadata received on OSD sink pad
 # and update params for drawing rectangle, object information etc.
 # Kafka configuration
-producer = KafkaProducer(bootstrap_servers='triton-demo-01-kafka-1:9092')
+producer = KafkaProducer(bootstrap_servers='kafka:9092')
 topic_name = 'rtsp_out'
 
 def pgie_src_pad_buffer_probe(pad, info, u_data):

@@ -31,7 +31,7 @@ infer_config {
       model_name: "people_nvidia_detector"
       version: -1
       grpc {
-        url: "triton-demo-01-triton-server-1:8001"
+        url: "triton-server:8001"
       }
     }
   }
