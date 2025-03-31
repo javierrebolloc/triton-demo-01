@@ -100,13 +100,20 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./triton_model_repo:/models
+      - ./entrypoint.sh:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/entrypoint.sh
       - ./start-inference.py:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/start-inference.py
       - ./dstest1_pgie_config.txt:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/dstest1_pgie_config.txt
       - ./dstest1_pgie_inferserver_config.txt:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/dstest1_pgie_inferserver_config.txt
+      - ./start-inference-02.py:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/start-inference-02.py
+      - ./dstest1_pgie_config-02.txt:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/dstest1_pgie_config-02.txt
+      - ./dstest1_pgie_inferserver_config-02.txt:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/dstest1_pgie_inferserver_config-02.txt
+      - ./start-inference-03.py:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/start-inference-03.py
+      - ./dstest1_pgie_config-03.txt:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/dstest1_pgie_config-03.txt
+      - ./dstest1_pgie_inferserver_config-03.txt:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/dstest1_pgie_inferserver_config-03.txt
     environment:
       - DISPLAY=${DISPLAY}
     working_dir: /opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out
-    command: python3 start-inference.py -i rtsp://rtsp-server-1:8554/cam1 rtsp://rtsp-server-1:8554/cam2 rtsp://rtsp-server-1:8554/cam3 -g nvinferserver
+    entrypoint: ["./entrypoint.sh"]
     networks:
       - demo-01
     depends_on:
