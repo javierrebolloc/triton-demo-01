@@ -70,7 +70,7 @@ services:
       - demo-01
     hostname: triton-server
   deepstream-app:
-    image: working-deepstream-v02
+    image: javierrebolloc/demo-01:ds01
     deploy:
       resources:
         reservations:

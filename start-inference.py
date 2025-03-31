@@ -33,8 +33,10 @@ import configparser
 import datetime
 from kafka import KafkaProducer
 import json
-
+import time
 import argparse
+
+time.sleep(60)
 
 MAX_DISPLAY_LEN = 64
 PGIE_CLASS_ID_VEHICLE = 0
