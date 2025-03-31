@@ -1,0 +1,100 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - demo-01
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    networks:
+      - demo-01
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - demo-01
+  rtsp-streamer:
+    image: ubuntu:latest
+    volumes:
+      - ./orleans.mp4:/orleans.mp4
+    command: bash -c "ls -l && pwd && apt-get update && apt-get install -y ffmpeg && pwd && ls -l && chmod 777 orleans.mp4 && ffmpeg -re -stream_loop -1 -i ./orleans.mp4 -an -c copy -f rtsp rtsp://rtsp-server-1:8554/mystream"
+    depends_on:
+      - rtsp-server-1
+    networks:
+      - demo-01
+  rtsp-server-1:
+    image: bluenviron/mediamtx
+    ports:
+      - "8554:8554"
+    hostname: rtsp-server-1
+    networks:
+      - demo-01
+  triton-server:
+    image: nvcr.io/nvidia/deepstream:6.4-gc-triton-devel
+    command: tritonserver --model-repository=/models
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./triton_model_repo:/models
+    environment:
+      DISPLAY: ${DISPLAY}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - demo-01
+    hostname: triton-server
+  deepstream-app:
+    image: working-deepstream-v01
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    privileged: true
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./triton_model_repo:/models
+      - ./start-inference.py:/opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out/start-inference.py
+    environment:
+      - DISPLAY=${DISPLAY}
+    working_dir: /opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps/apps/deepstream-rtsp-in-rtsp-out
+    command: python3 start-inference.py -i rtsp://rtsp-server-1:8554/mystream -g nvinferserver
+    networks:
+      - demo-01
+    depends_on:
+      triton-server:
+        condition: service_started
+      rtsp-streamer:
+        condition: service_started
+      kafka:
+        condition: service_started
+networks:
+  demo-01:
